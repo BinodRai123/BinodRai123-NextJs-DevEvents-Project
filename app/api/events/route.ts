@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
 
+      // Upload image to Cloudinary
       const UploadImageToCloudinary = await new Promise((resolve, reject) => {
          cloudinary.uploader
             .upload_stream({ resource_type: "image", folder: "devEvent" }, (error, result) => {
@@ -53,5 +54,19 @@ export async function POST(req: NextRequest) {
          },
          { status: 500 }
       );
+   }
+}
+
+export async function GET() {
+   try {
+      await connectToDatabase();
+
+      const events = await Event.find().sort({ createdAt: -1 });
+
+      if (!events) return NextResponse.json({ message: "No events found" }, { status: 404 });
+
+      return NextResponse.json({ events }, { status: 200 });
+   } catch (error) {
+      return NextResponse.json({ message: "Failed to fetch events" }, { status: 500 });
    }
 }

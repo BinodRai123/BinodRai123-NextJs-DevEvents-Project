@@ -2,11 +2,19 @@ import { EventItems } from "@/lib/constants";
 import Image from "next/image";
 import Link from "next/link";
 
-const EventCard = ({ title, image, slugs, location, date, time }: EventItems) => {
+const EventCard = ({ title, image, slug, location, date, time }: EventItems) => {
+   console.log(title, image, slug, location, date, time);
    return (
       <>
          <Link href="/events" id="event-card">
-            <Image src={image} alt={title} width={410} height={300} className="poster" />
+            <Image
+               src={image}
+               objectFit="contain"
+               alt={title}
+               width={410}
+               height={300}
+               className="poster object-cover"
+            />
 
             <div className="flex flex-row gap-2">
                <Image src="/icons/pin.svg" alt="location" width={16} height={14} />
