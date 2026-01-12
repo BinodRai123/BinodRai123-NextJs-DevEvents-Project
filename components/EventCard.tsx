@@ -3,10 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 const EventCard = ({ title, image, slug, location, date, time }: EventItems) => {
-   console.log(title, image, slug, location, date, time);
    return (
       <>
-         <Link href="/events" id="event-card">
+         <Link href={`/events/${slug}`} id="event-card">
             <Image
                src={image}
                objectFit="contain"
