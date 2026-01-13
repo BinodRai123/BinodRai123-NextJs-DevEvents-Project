@@ -1,6 +1,8 @@
 import BookEvent from "@/components/BookEvent";
+import EventCard from "@/components/EventCard";
+import { IEvent } from "@/database";
+import { getSimilarEventsBySlug } from "@/lib/actions/event.actions";
 import Image from "next/image";
-import { json } from "stream/consumers";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -15,18 +17,18 @@ const EventDetailItem = ({ icon, alt, label }: { icon: string; alt: string; labe
    );
 };
 
-const EventAgenda = ({ agendaItems }: { agendaItems: string[] }) => (
-   <>
+const EventAgenda = ({ agendaItems }: { agendaItems: string[] }) => {
+   return (
       <div className="agenda">
          <h2>Agenda</h2>
          <ul>
-            {agendaItems.map((item) => (
+            {agendaItems?.map((item) => (
                <li key={item}>{item}</li>
             ))}
          </ul>
       </div>
-   </>
-);
+   );
+};
 
 const EventTags = ({ tags }: { tags: string[] }) => {
    return (
@@ -43,6 +45,7 @@ const EventTags = ({ tags }: { tags: string[] }) => {
 const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
    const { slug } = await params;
 
+   //Fetch Data of cureent Event like: title, description, image and so on...
    const {
       event: {
          description,
@@ -61,7 +64,11 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
       },
    } = await fetch(`${BASE_URL}/api/events/${slug}`).then((res) => res.json());
 
+   // Number of Booking
    const bookings = 10;
+
+   //fetching similar events data in an array
+   const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 
    return (
       <>
@@ -70,7 +77,7 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
                <h1>Event Description</h1>
                <p>{description}</p>
             </div>
-
+            {/* details Section of event  */}
             <div className="details">
                {/* left side - Event Conttent */}
                <div className="content">
@@ -91,14 +98,14 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
                      <EventDetailItem icon="/icons/audience.svg" alt="audience" label={audience} />
                   </section>
 
-                  <EventAgenda agendaItems={JSON.parse(agenda[0])} />
+                  <EventAgenda agendaItems={agenda} />
 
                   <section className="flex-col-gap-2">
                      <h2>About The Organizer</h2>
                      <p>{organizer}</p>
                   </section>
 
-                  <EventTags tags={JSON.parse(tags[0])} />
+                  <EventTags tags={tags} />
                </div>
 
                {/* right side - Booking Form */}
@@ -114,6 +121,16 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
                      <BookEvent />
                   </div>
                </aside>
+            </div>
+            {/* Similar Events showCase */}
+            <div className="flex w-full flex-col gap-4 pt-20">
+               <h2>Wanna See Similar Events</h2>
+               <div className="events">
+                  {similarEvents.length > 0 &&
+                     similarEvents.map((similarEvent: IEvent) => (
+                        <EventCard key={similarEvent.title} {...similarEvent} />
+                     ))}
+               </div>
             </div>
          </section>
       </>

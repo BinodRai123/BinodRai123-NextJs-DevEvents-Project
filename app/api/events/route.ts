@@ -8,7 +8,6 @@ export async function POST(req: NextRequest) {
       await connectToDatabase();
 
       const formData = await req.formData();
-      console.log("Received form data:", formData);
 
       let event;
 
@@ -38,8 +37,14 @@ export async function POST(req: NextRequest) {
       // Assign the secure URL of the uploaded image to the event object
       event.image = (UploadImageToCloudinary as { secure_url: string }).secure_url;
 
+      //converting the String formdata of tags and agenda
+      //from "[tagsdata]" to [tagsData]
+      const tags = JSON.parse(formData.get("tags") as string);
+
+      const agenda = JSON.parse(formData.get("agenda") as string);
+
       // Create new event with image URL
-      const createdEvent = await Event.create(event);
+      const createdEvent = await Event.create({ ...event, tags: tags, agenda: agenda });
 
       return NextResponse.json(
          { message: "Event created successfully", event: createdEvent },

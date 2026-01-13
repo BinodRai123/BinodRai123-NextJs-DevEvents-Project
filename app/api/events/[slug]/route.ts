@@ -22,7 +22,6 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
 
       // 2. Extract Params
       const { slug } = await params;
-      console.log("prams:", slug);
 
       // check if slug is valid
       if (!slug || typeof slug !== "string") {
