@@ -67,11 +67,18 @@ export async function GET() {
       await connectToDatabase();
 
       const events = await Event.find().sort({ createdAt: -1 });
+      console.log(events);
 
       if (!events) return NextResponse.json({ message: "No events found" }, { status: 404 });
 
       return NextResponse.json({ events }, { status: 200 });
    } catch (error) {
-      return NextResponse.json({ message: "Failed to fetch events" }, { status: 500 });
+      return NextResponse.json(
+         {
+            message: "Failed to fetch events",
+            error: error instanceof Error ? error.message : "unknow error",
+         },
+         { status: 500 }
+      );
    }
 }

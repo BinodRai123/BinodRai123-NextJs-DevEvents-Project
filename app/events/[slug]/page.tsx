@@ -2,7 +2,9 @@ import BookEvent from "@/components/BookEvent";
 import EventCard from "@/components/EventCard";
 import { IEvent } from "@/database";
 import { getSimilarEventsBySlug } from "@/lib/actions/event.actions";
+import { cacheLife } from "next/cache";
 import Image from "next/image";
+import { notFound } from "next/navigation";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -43,26 +45,37 @@ const EventTags = ({ tags }: { tags: string[] }) => {
 };
 
 const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+   "use cache";
+   cacheLife("hours");
    const { slug } = await params;
 
    //Fetch Data of cureent Event like: title, description, image and so on...
+   let event;
+   try {
+      const request = await fetch(`${BASE_URL}/api/events/${slug}`);
+      const response = await request.json();
+
+      event = response.event;
+   } catch (error) {
+      console.log("Error while fetching:", error);
+      notFound();
+   }
+
    const {
-      event: {
-         description,
-         title,
-         overview,
-         date,
-         time,
-         venue,
-         location,
-         mode,
-         audience,
-         agenda,
-         organizer,
-         tags,
-         image,
-      },
-   } = await fetch(`${BASE_URL}/api/events/${slug}`).then((res) => res.json());
+      description,
+      title,
+      overview,
+      date,
+      time,
+      venue,
+      location,
+      mode,
+      audience,
+      agenda,
+      organizer,
+      tags,
+      image,
+   } = event;
 
    // Number of Booking
    const bookings = 10;
@@ -118,10 +131,11 @@ const EventDetailsPage = async ({ params }: { params: Promise<{ slug: string }> 
                         <p className="text-sm">Be the first to book your spot!</p>
                      )}
 
-                     <BookEvent />
+                     <BookEvent eventId={event._id} slug={slug} />
                   </div>
                </aside>
             </div>
+
             {/* Similar Events showCase */}
             <div className="flex w-full flex-col gap-4 pt-20">
                <h2>Wanna See Similar Events</h2>
