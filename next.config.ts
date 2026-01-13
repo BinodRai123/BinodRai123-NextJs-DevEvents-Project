@@ -13,6 +13,19 @@ const nextConfig: NextConfig = {
          },
       ],
    },
+   async headers() {
+      return [
+         {
+            source: "/:path*",
+            headers: [
+               {
+                  key: "X-Robots-Tag",
+                  value: "index, follow", // This tells Google to index your pages
+               },
+            ],
+         },
+      ];
+   },
    /* config options here */
 };
 
